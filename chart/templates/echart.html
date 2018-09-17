@@ -1,0 +1,143 @@
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <script src="js/echarts.common.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+        <!-- <script src="js/append.js"></script> -->
+        
+    </head>
+    <body>
+        <!-- 文件导入 -->
+        <div id="input_file">
+            <form enctype="multipart/form-data" action="http://localhost:8080/file/" method="POST">
+                <input type="file" accept="*.xls" value="文件上传">
+                <input type="submit" value="上传">
+            </form>
+        </div>
+        <!-- 坐标位置 -->
+        <div id="main" style="width:600px;height:400px;"></div>
+        <div id="refresh">
+            <button>开始更新</button>
+        </div>
+        <!-- 终端在线列表 -->
+        <div id="online_list">
+            <table>
+                <thead>
+                    <th>
+                        <!-- 选择按钮 -->
+                        <tr>全选</tr>   
+                        <!-- 报警 -->
+                        <tr>警报</tr>
+                        <!-- 标签id -->
+                        <tr>标签id</tr>
+                        <!-- 坐标（x,y） -->
+                        <tr>坐标（x,y）</tr>
+                    </th>
+                </thead>
+                <tbody>
+                   <tr>
+                       <td>ok</td>
+                       <td>ok</td>
+                       <td>ok</td>
+                       <td>ok</td>
+                   </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 弹窗提示 -->
+        <div id="tip" hidden>
+            <!-- 详细信息 -->
+            <form method="POST" action="#">
+                <p>第一行</p>
+                <p>第二行</p>
+                <input type="submit" value="提交">
+            </form>
+        </div>
+        <!-- 时钟 -->
+        <div id="time"></div>
+
+        <script type="text/javascript">
+            function append_data()
+            {
+                var chart = echarts.init(document.getElementById("main"));
+                var option = {
+                    title: {
+                        text: "position"
+                    },
+                    tooltip: {
+                    },
+                    xAxis:{
+                        min: 0,
+                        max: 11
+                    },
+                    yAxis:{
+                        min: 0,
+                        max: 11
+                    },
+                    visualMap: {
+                        type: 'continuous',
+                        min: 0,
+                        max: 5,
+                        show: false,
+                        calculabe: true,
+                        color: ['orangered', 'yellow', 'lightskyblue']
+                    },
+                    series: [
+                        {
+                            type: "scatter",
+                            name: "position",
+                            dimensions: ['x','y','value'],
+                            encode: {
+                                x: 0,
+                                y: 1
+                            },
+                            tooltip: {
+                                formatter: function(params) {
+                                    return params.data[2] + '<br>' + 'x:' + params.data[0] + ' y:' + params.data[1];
+                                }
+                            },
+                            data:[]          
+                        }
+                    ]
+                };
+                chart.setOption(option);
+                
+                var websock = new WebSocket("ws://localhost:8080/web/");
+
+                websock.onmessage = function(evt)
+                {
+                    var i;
+                    var res = evt.data;
+                    var pos_data = JSON.parse(res);
+                    
+                    // console.log("%o", pos_data);
+                    var oldopt = chart.getOption();      // 获取当前设置项
+                    console.log("%o", oldopt);
+                    if (oldopt.series[0].data.length) {
+                        for (i = 0; i < oldopt.series[0].data.length; i++) {
+                            var oldData = oldopt.series[0].data[i];
+                            if (oldData[2] == pos_data['value']) {
+                                oldopt.series[0].data[i][0] = pos_data['x'];
+                                oldopt.series[0].data[i][1] = pos_data['y'];
+                                chart.setOption(oldopt);
+                                return;
+                            }
+                        }
+                    }
+                    var newData = [pos_data['x'], pos_data['y'], pos_data['value']];
+                    oldopt.series[0].data.push(newData);
+                    chart.setOption(oldopt);
+                };
+            }
+            append_data();
+        </script>
+    </body>
+</html>

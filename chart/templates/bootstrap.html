@@ -1,0 +1,88 @@
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <script src="js/echarts.common.min.js"></script>
+        <script src="js/customed.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+        <!-- <script src="js/append.js"></script> -->
+        
+        <script>
+            function displayDate(){
+                // document.getElementById("demo").innerHTML=Date();
+                console.log("%o", store_data);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="main" style="width:600px;height:400px;"></div>
+        <script type="text/javascript">
+            var chart = echarts.init(document.getElementById("main"),'customed');
+            var option = {
+                title: {
+                    text: "position"
+                },
+                tooltip: {},
+                xAxis:[{
+                    // min: 0,
+                    // max: 11
+                    type: 'value'
+                }],
+                yAxis:[{
+                    // min: 0,
+                    // max: 11
+                    type: 'value'
+                }],
+                dataset: {
+                //     dimensions: ['x','y','value'],
+                    source: [
+                        // [2,4,100],
+                        // [0,2,0],
+                        // [3,1,50]
+                        {x: 2, y: 4, value: 100},
+                        {x: 0, y: 2, value: 0},
+                        {x: 3, y: 1, value: 50}
+                    ]
+                },
+                visualMap: {
+                    min: 0,
+                    max: 100,
+                    // dimension: 2,
+                    show: false,
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    text: ['HIGH', 'LOW'],
+                    calculable: true,
+                    inRange: {
+                        color: ['#f2c31a', '#24b7f2']
+                    }
+                },
+                series: [
+                    {
+                        type: "scatter",
+                        name: "position",
+                        // symbolSize: 5,
+                        dimensions: ['x','y','value'],
+                        encode: {
+                            x: 'x',
+                            y: 'y',
+                            tooltip: 'value'
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        </script>
+        <p>点击按钮执行 <em>displayDate()</em> 函数.</p>
+        <button onclick="displayDate()">点这里</button>
+
+    </body>
+</html>
