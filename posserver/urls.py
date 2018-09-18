@@ -18,13 +18,14 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from chart.views import websockTest
-from chart.views import index
+from chart.views import index, indexTest
 import os
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^web/', websockTest),     # 处理 websocket
     url(r'^$', index),
+    url(r'^test/', indexTest)
 ]
 
 media_root = os.path.join(settings.BASE_DIR+'/posserver/','templates')
