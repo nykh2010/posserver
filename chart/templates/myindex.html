@@ -58,18 +58,75 @@
             
     <body>
         <!-- 文件导入 -->
-        <button onclick="websock.send('hello')"></button>
+        <button onclick="cal_time()">测试按钮
+            <script>
+                function cal_time() {
+                    // 校时
+                    var msg = {'id':0x01, 'type':0x01, 'message':0x00};
+                    data = JSON.stringify(msg);
+                    websock.send(data);
+                }
+            </script>
+        </button>
+        <button onclick="download()">下载数据
+            <script>
+                function download() {
+                    // 下载数据
+                    var msg = {'id':0x01, 'type':0x00, 'message':0x00};
+                    data = JSON.stringify(msg);
+                    websock.send(data);
+                }
+            </script>
+        </button>
         <div id="input_file">
                 <form enctype="multipart/form-data" action="http://127.0.0.1:8080/" method="POST" target="localpage">
                     <input type="file" accept="*.csv" name="csvfile">
                     <input type="submit" value="上传">
                 </form>
-                <iframe id="localpage" style="display:none"></iframe>
+                <iframe id="localpage" name="localpage" style="display:none"></iframe>
+        </div>
+        <!-- 时间标签 -->
+        <div id="time_clock">
+            <!--setInterval实时显示时间-->
+            <p id="time1" style="color: blueviolet;"></p>
+            <script>
+                function mytime(){
+                    var a = new Date();
+                    var b = a.toLocaleTimeString();
+                    var c = a.toLocaleDateString();
+                    document.getElementById("time1").innerHTML = c+"&nbsp"+b;
+                    }
+                setInterval(function() {mytime()},1000);
+            </script>
         </div>
         <!-- 坐标位置 -->
         <div id="main" style="width:600px;height:400px;"></div>
         <div id="refresh">
-            <button>开始更新</button>
+            <button id="start_refresh" onclick="start_refresh()">开始更新</button>
+            <script>
+                // 定位轮询开关
+                var switch_cnt = 0x00;
+                function start_refresh() {
+                    var dom = document.getElementById('start_refresh');
+                    console.log("%o", dom.innerText);
+                    if (dom.innerText == '开始更新') {
+                        dom.innerText = '停止更新';
+                        switch_cnt = 0x01;
+                    }
+                    else {
+                        dom.innerText = '开始更新';
+                        switch_cnt = 0x02;
+                    }
+                    var message = {
+                        'id':0x01,
+                        'type':0x02,
+                        'message':switch_cnt
+                    };
+                    data = JSON.stringify(message)
+                    console.log("%o", data);
+                    websock.send(data)
+                }
+            </script>
         </div>
         <!-- 终端在线列表 -->
         <div id="online_list" class="row">
