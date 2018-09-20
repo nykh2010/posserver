@@ -1,23 +1,98 @@
-<html>
+<html lang="zh-CN">
     <head>
-    
-        	<meta charset="utf-8"> 
-            <title>Bootstrap 实例 - 模态框（Modal）插件</title>
-            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
-            <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
-            <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <meta charset="utf-8"> 
+        <title>定位电子工牌</title>
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-                <!-- end: Favicon -->
-                <script>
-                    var websock = new WebSocket("ws://127.0.0.1:8080/web/");
-                    websock.onmessage = function(evt) {
-                        var res = evt.data;
-                        console.log("%o", res);
+        <script src="/static/js/echarts.common.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+        <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+
+        <!-- end: Favicon -->
+        <script>
+            var websock = new WebSocket("ws://127.0.0.1:8080/web/");
+            websock.onmessage = function(evt) {
+                var i;
+                var res = evt.data;
+                var pos_data = JSON.parse(res);
+                // 协议解析
+                // console.log("%o", pos_data);
+                var oldopt = chart.getOption();      // 获取当前设置项
+                console.log("%o", oldopt);
+                if (oldopt.series[0].data.length) {
+                    for (i = 0; i < oldopt.series[0].data.length; i++) {
+                        var oldData = oldopt.series[0].data[i];
+                        if (oldData[2] == pos_data['value']) {
+                            oldopt.series[0].data[i][0] = pos_data['x'];
+                            oldopt.series[0].data[i][1] = pos_data['y'];
+                            chart.setOption(oldopt);
+                            return;
+                        }
                     }
-                </script>
-                    
-                    
-                    
+                }
+                var newData = [pos_data['x'], pos_data['y'], pos_data['value']];
+                oldopt.series[0].data.push(newData);
+                chart.setOption(oldopt);
+            }
+        </script>
+        <script type="text/javascript">
+            function append_data()
+            {
+                var chart = echarts.init(document.getElementById("main"));
+                var option = {
+                    title: {
+                        text: "位置",
+                        left: "center"
+                    },
+                    tooltip: {
+                    },
+                    xAxis:{
+                        min: 0,
+                        max: 100
+                    },
+                    yAxis:{
+                        min: 0,
+                        max: 100
+                    },
+                    visualMap: {
+                        type: 'continuous',
+                        min: 0,
+                        max: 5,
+                        show: false,
+                        calculabe: true,
+                        color: ['orangered', 'yellow', 'lightskyblue']
+                    },
+                    series: [
+                        {
+                            type: "scatter",
+                            name: "position",
+                            dimensions: ['x','y','value'],
+                            encode: {
+                                x: 0,
+                                y: 1
+                            },
+                            tooltip: {
+                                formatter: function(params) {
+                                    return params.data[2] + '<br>' + 'x:' + params.data[0] + ' y:' + params.data[1];
+                                }
+                            },
+                            data:[]          
+                        }
+                    ]
+                };
+                chart.setOption(option);
+            }
+            $(document).ready(append_data);
+        </script>
     </head>
             
     <body class="container" style="margin-left:10px">
@@ -83,10 +158,10 @@
         </div>
         
         <!-- 终端在线列表 -->
-        <div id="online_list" class="col-xs-6 col-sm-3">
+        <div id="online_list" class="col-md-4 column">
             {% for terminal in terminals %}
-            <ul class="list-group" style="margin-bottom:1px">
-                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#{{terminal.uid}}">
+            <ul class="list-group" style="margin-bottom:1px; margin-right:0px">
+                <button class="btn btn-primary btn-lg" style="background-color:rgb(0,{{terminal.tid}},0)" data-toggle="modal" data-target="#{{terminal.uid}}">
                     {{terminal.uid}}
                 </button>
                 <!-- 模态框 -->
@@ -104,7 +179,7 @@
                                     <li><input type="text" name="{{terminal.uid}}-name" placeholder="{{terminal.name}}">姓名</li>
                                     <li><input type="text" name="{{terminal.uid}}-depart" placeholder="{{terminal.depatment}}">科室</li>
                                     <li><input type="text" name="{{terminal.uid}}-level" placeholder="{{terminal.level}}">职级</li>
-                                    <li><input type="text" name="{{terminal.uid}}-uid" placeholder="{terminal.uid}">工号</li>
+                                    <li><input type="text" name="{{terminal.uid}}-uid" placeholder="{{terminal.uid}}">工号</li>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -119,7 +194,7 @@
             {% endfor %}
         </div>
         <!-- 坐标位置 -->
-        <div id="main" class="col-sm-8" style="heigth:400px">
+        <div id="pos" class="col-md-8 column" style="margin: 0%">
             <!-- 时间标签 -->
             <div id="time_clock">
                 <!--setInterval实时显示时间-->
@@ -134,13 +209,7 @@
                     setInterval(function() {mytime()},1000);
                 </script>
             </div>
-            坐标位置
+            <div id="main" style="width:630px; height: 630px"></div>
         </div>
-        
-        
-        
-        
-        
-        
     </body>
 </html>
