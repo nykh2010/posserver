@@ -1,48 +1,12 @@
 <html>
     <head>
-	
-                <!-- start: Meta -->
-                <meta charset="utf-8">
-                <title>Bootstrap Metro Dashboard by Dennis Ji for ARM demo</title>
-                <meta name="description" content="Bootstrap Metro Dashboard">
-                <meta name="author" content="Dennis Ji">
-                <meta name="keyword" content="Metro, Metro UI, Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
-                <!-- end: Meta -->
-                
-                <!-- start: Mobile Specific -->
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <!-- end: Mobile Specific -->
-                
-                <!-- start: CSS -->
-                <link id="bootstrap-style" href="/static/css/bootstrap.min.css" rel="stylesheet">
-                <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
-                <link id="base-style" href="/static/css/style.css" rel="stylesheet">
-                <link id="base-style-responsive" href="/static/css/style-responsive.css" rel="stylesheet">
-                <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&subset=latin,cyrillic-ext,latin-ext' rel='stylesheet' type='text/css'>
-                <!-- end: CSS -->
-                <script src="/static/js/echarts.common.min.js"></script>
-                    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
-                   <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
-                   <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
-            
-                <!-- The HTML5 shim, for IE6-8 support of HTML5 elements -->
-                <!--[if lt IE 9]>
-                      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-                    <link id="ie-style" href="css/ie.css" rel="stylesheet">
-                <![endif]-->
-                
-                <!--[if IE 9]>
-                    <link id="ie9style" href="css/ie9.css" rel="stylesheet">
-                <![endif]-->
-                    
-                <!-- start: Favicon -->
-                <link rel="shortcut icon" href="/static/img/favicon.ico">
+    
+        	<meta charset="utf-8"> 
+            <title>Bootstrap 实例 - 模态框（Modal）插件</title>
+            <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+            <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+            <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
                 <!-- end: Favicon -->
                 <script>
                     var websock = new WebSocket("ws://127.0.0.1:8080/web/");
@@ -56,123 +20,127 @@
                     
     </head>
             
-    <body>
-        <!-- 文件导入 -->
-        <button onclick="cal_time()">测试按钮
-            <script>
-                function cal_time() {
-                    // 校时
-                    var msg = {'id':0x01, 'type':0x01, 'message':0x00};
-                    data = JSON.stringify(msg);
-                    websock.send(data);
-                }
-            </script>
-        </button>
-        <button onclick="download()">下载数据
-            <script>
-                function download() {
-                    // 下载数据
-                    var msg = {'id':0x01, 'type':0x00, 'message':0x00};
-                    data = JSON.stringify(msg);
-                    websock.send(data);
-                }
-            </script>
-        </button>
-        <div id="input_file">
-                <form enctype="multipart/form-data" action="http://127.0.0.1:8080/" method="POST" target="localpage">
-                    <input type="file" accept="*.csv" name="csvfile">
-                    <input type="submit" value="上传">
-                </form>
-                <iframe id="localpage" name="localpage" style="display:none"></iframe>
-        </div>
-        <!-- 时间标签 -->
-        <div id="time_clock">
-            <!--setInterval实时显示时间-->
-            <p id="time1" style="color: blueviolet;"></p>
-            <script>
-                function mytime(){
-                    var a = new Date();
-                    var b = a.toLocaleTimeString();
-                    var c = a.toLocaleDateString();
-                    document.getElementById("time1").innerHTML = c+"&nbsp"+b;
+    <body class="container" style="margin-left:10px">
+        <div class="row">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div>
+                    <form enctype="multipart/form-data" action="http://127.0.0.1:8080/" method="POST" target="localpage" class="navbar-form navbar-left" role="form">
+                        <div class="form-group">
+                            <input type="file" accept="*.csv" name="csvfile">
+                        </div>
+                        <button type="submit" value="上传" class="btn btn-default">提交</button>
+                    </form>
+                    <iframe id="localpage" name="localpage" style="display:none"></iframe>
+                </div>
+                <!-- 文件导入 -->
+                <button onclick="cal_time()" class="btn btn-default navbar-btn">时间同步
+                    <script>
+                        function cal_time() {
+                        // 校时
+                            var msg = {'id':0x01, 'type':0x01, 'message':0x00};
+                            data = JSON.stringify(msg);
+                            websock.send(data);
+                        }
+                    </script>
+                </button>
+                <button onclick="download()" class="btn btn-default navbar-btn">下载数据
+                    <script>
+                        function download() {
+                            // 下载数据
+                            var msg = {'id':0x01, 'type':0x00, 'message':0x00};
+                            data = JSON.stringify(msg);
+                            websock.send(data);
+                        }
+                    </script>
+                </button>
+                <button id="start_refresh" onclick="start_refresh()" class="btn btn-default navbar-btn">开始更新</button>
+                <script>
+                    // 定位轮询开关
+                    var switch_cnt = 0x00;
+                    function start_refresh() {
+                        var dom = document.getElementById('start_refresh');
+                        console.log("%o", dom.innerText);
+                        if (dom.innerText == '开始更新') {
+                            dom.innerText = '停止更新';
+                            switch_cnt = 0x01;
+                        }
+                        else {
+                            dom.innerText = '开始更新';
+                            switch_cnt = 0x02;
+                        }
+                        var message = {
+                            'id':0x01,
+                            'type':0x02,
+                            'message':switch_cnt
+                        };
+                        data = JSON.stringify(message)
+                        console.log("%o", data);
+                        websock.send(data)
                     }
-                setInterval(function() {mytime()},1000);
-            </script>
-        </div>
-        <!-- 坐标位置 -->
-        <div id="main" style="width:600px;height:400px;"></div>
-        <div id="refresh">
-            <button id="start_refresh" onclick="start_refresh()">开始更新</button>
-            <script>
-                // 定位轮询开关
-                var switch_cnt = 0x00;
-                function start_refresh() {
-                    var dom = document.getElementById('start_refresh');
-                    console.log("%o", dom.innerText);
-                    if (dom.innerText == '开始更新') {
-                        dom.innerText = '停止更新';
-                        switch_cnt = 0x01;
-                    }
-                    else {
-                        dom.innerText = '开始更新';
-                        switch_cnt = 0x02;
-                    }
-                    var message = {
-                        'id':0x01,
-                        'type':0x02,
-                        'message':switch_cnt
-                    };
-                    data = JSON.stringify(message)
-                    console.log("%o", data);
-                    websock.send(data)
-                }
-            </script>
-        </div>
-        <!-- 终端在线列表 -->
-        <div id="online_list" class="row">
-            <div class="col-md-1">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <!-- 选择按钮 -->
-                            <th>
-                                <input type="checkbox" value="全选">全选
-                            </th>   
-                            <!-- 报警 -->
-                            <th>警报</th>
-                            <!-- 标签id -->
-                            <th>标签id</th>
-                            <!-- 坐标（x,y） -->
-                            <th>坐标（x,y）</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for terminal in terminals %}
-                            <tr onclick='alert("unpack")'>
-                                <td>
-                                    <input type="checkbox">
-                                </td>
-                                <td>
-                                    <button></button>
-                                </td>
-                                <td>{{terminal.uid}}</td>
-                                <td>{{terminal.x}},{{terminal.y}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                </script>
             </div>
         </div>
-        <!-- 弹窗提示 -->
-        <div id="tip" hidden>
-            <!-- 详细信息 -->
-            <form method="POST" action="#">
-                <p>第一行</p>
-                <p>第二行</p>
-                <input type="submit" value="提交">
-            </form>
+        
+        <!-- 终端在线列表 -->
+        <div id="online_list" class="col-xs-6 col-sm-3">
+            {% for terminal in terminals %}
+            <ul class="list-group" style="margin-bottom:1px">
+                <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#{{terminal.uid}}">
+                    {{terminal.uid}}
+                </button>
+                <!-- 模态框 -->
+                <div class="modal fade" id="{{terminal.uid}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">                                
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">{{terminal.uid}}&nbsp;信息修改</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div style="margin-left:30px">
+                                    <li><input type="text" name="{{terminal.uid}}-name" placeholder="{{terminal.name}}">姓名</li>
+                                    <li><input type="text" name="{{terminal.uid}}-depart" placeholder="{{terminal.depatment}}">科室</li>
+                                    <li><input type="text" name="{{terminal.uid}}-level" placeholder="{{terminal.level}}">职级</li>
+                                    <li><input type="text" name="{{terminal.uid}}-uid" placeholder="{terminal.uid}">工号</li>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary">提交更改</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 模态框结束 -->
+            </ul>
+            {% endfor %}
         </div>
-        <!-- 时钟 -->
-        <div id="time"></div>
+        <!-- 坐标位置 -->
+        <div id="main" class="col-sm-8" style="heigth:400px">
+            <!-- 时间标签 -->
+            <div id="time_clock">
+                <!--setInterval实时显示时间-->
+                <p id="time1" style="color: blueviolet;"></p>
+                <script>
+                    function mytime(){
+                        var a = new Date();
+                        var b = a.toLocaleTimeString();
+                        var c = a.toLocaleDateString();
+                        document.getElementById("time1").innerHTML = c+"&nbsp"+b;
+                        }
+                    setInterval(function() {mytime()},1000);
+                </script>
+            </div>
+            坐标位置
+        </div>
+        
+        
+        
+        
+        
+        
     </body>
 </html>
