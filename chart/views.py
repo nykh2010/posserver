@@ -9,6 +9,12 @@ import time
 import serial
 import numpy as np
 import threading
+import os
+
+
+cwd = os.getcwd()
+with open(cwd + r'\chart\static\colorMap.list') as f:
+    colorList = f.read().split(',')
 
 def str2HexList(strObj):
     '''字符串转十六进制列表'''
@@ -71,6 +77,7 @@ def index(request):
     else:
         '''处理GET请求'''
     terminals = PosData.objects.all()
+    colors = colorList[:len(terminals)]
     return render(request, 'myindex.html', locals())
 
 websocks = []
