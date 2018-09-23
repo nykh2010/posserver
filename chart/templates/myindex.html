@@ -25,9 +25,18 @@
                 var res = evt.data;
                 var pos_data = JSON.parse(res);
                 // 协议解析
-                // console.log("%o", pos_data);
+                console.log("%o", pos_data);
+                switch(pos_data.type) {
+                    case 0x07:
+                    // 报警信息上传
+                        console.log("alarm");
+                        break;
+                    case 0x08:
+                    // 坐标位置上报
+                        console.log()
+                }
                 var oldopt = chart.getOption();      // 获取当前设置项
-                console.log("%o", oldopt);
+                // console.log("%o", oldopt);
                 if (oldopt.series[0].data.length) {
                     for (i = 0; i < oldopt.series[0].data.length; i++) {
                         var oldData = oldopt.series[0].data[i];
@@ -105,6 +114,40 @@
             }
             $(document).ready(append_data);
         </script>
+        <script type="text/javascript">
+            function info_update(uid) {
+                console.log("info update");
+                var modal_name = document.getElementById(uid+"-name");
+                var modal_depart = document.getElementById(uid+"-depart");
+                var modal_level = document.getElementById(uid+"-level");
+                var modal_uid = document.getElementById(uid+"-uid");
+                if (modal_name.value == "")
+                    name = modal_name.placeholder;
+                else
+                    name = modal_name.value;
+
+                if (modal_depart.value == "")
+                    depart = modal_depart.placeholder;
+                else
+                    depart = modal_depart.value;
+
+                if (modal_level.value == "")
+                    level = modal_level.placeholder;
+                else
+                    level = modal_level.value;
+
+                if (modal_uid.value == "")
+                    uid = modal_uid.placeholder;
+                else
+                    uid = modal_uid.value;
+
+                var msgdata = {'name':name, 'depart':depart, 'level':level, 'uid':uid};
+                var msg = {'id':modal_uid.placeholder, 'type':0x03, 'message':msgdata};
+                data = JSON.stringify(msg);
+                console.log("%o",data);
+                websock.send(data);
+            }
+        </script>
     </head>
             
     <body class="container" style="margin-left:10px">
@@ -124,11 +167,11 @@
                 <button onclick="cal_time()" class="btn btn-default navbar-btn">时间同步
                     <script>
                         function cal_time() {
-                        // // 校时
-                        //     var msg = {'id':0x01, 'type':0x01, 'message':0x00};
-                        //     data = JSON.stringify(msg);
-                        //     websock.send(data);
-                            console.log("%o", chart.getOption());
+                        // 校时
+                            var msg = {'id':0x01, 'type':0x01, 'message':0x00};
+                            data = JSON.stringify(msg);
+                            websock.send(data);
+                            // console.log("%o", chart.getOption());
                         }
                     </script>
                 </button>
@@ -136,7 +179,7 @@
                     <script>
                         function download() {
                             // 下载数据
-                            var msg = {'id':0x01, 'type':0x00, 'message':0x00};
+                            var msg = {'id':0x01, 'type':0x04, 'message':0x00};
                             data = JSON.stringify(msg);
                             websock.send(data);
                         }
@@ -167,6 +210,48 @@
                         websock.send(data)
                     }
                 </script>
+                <!-- 消息通知 -->
+                <div>
+                    <button id="msg-to-btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        @<span id="msg-to-btn-id">All</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li onclick="chg_msg_to('All')" class="list-group-item">
+                            All
+                        </li>
+                        {% for terminal in terminals %}
+                            <li id="{{terminal.uid}}-msg-to" onclick="chg_msg_to({{terminal.uid}})" class="list-group-item">
+                                {{terminal.uid}}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <script>
+                        function chg_msg_to(uid) {
+                            console.log("%o",uid);
+                            var msg_to_btn = document.getElementById("msg-to-btn-id");
+                            msg_to_btn.innerHTML = uid;
+                        }
+                    </script>
+                    <input type="text" id="msg-box" class="form-control" placeholder="不超过10个汉字">
+                    <button type="submit" onclick="submit_msg()" class="btn btn-default">提交</button>
+                    <script>
+                        function submit_msg() {
+                            var msg_box = document.getElementById('msg-box');
+                            if (msg_box.value == "")
+                                alert("请输入需要提交的信息！");
+                            else {
+                                var dst_id = document.getElementById('msg-to-btn-id');
+                                var msgdata = document.getElementById('msg-box').value;
+                                id = dst_id.innerHTML;
+                                var msg = {'id':id, 'type':0x06, 'message':msgdata};
+                                data = JSON.stringify(msg);
+                                console.log("%o", data);
+                                websock.send(data);
+                            }
+                        }
+                    </script>
+                </div>
             </div>
         </div>
         
@@ -189,15 +274,15 @@
                             </div>
                             <div class="modal-body">
                                 <div style="margin-left:30px">
-                                    <li><input type="text" name="{{terminal.uid}}-name" placeholder="{{terminal.name}}">姓名</li>
-                                    <li><input type="text" name="{{terminal.uid}}-depart" placeholder="{{terminal.depatment}}">科室</li>
-                                    <li><input type="text" name="{{terminal.uid}}-level" placeholder="{{terminal.level}}">职级</li>
-                                    <li><input type="text" name="{{terminal.uid}}-uid" placeholder="{{terminal.uid}}">工号</li>
+                                    <li><input type="text" id="{{terminal.uid}}-name" placeholder="{{terminal.name}}">姓名</li>
+                                    <li><input type="text" id="{{terminal.uid}}-depart" placeholder="{{terminal.depatment}}">科室</li>
+                                    <li><input type="text" id="{{terminal.uid}}-level" placeholder="{{terminal.level}}">职级</li>
+                                    <li><input type="text" id="{{terminal.uid}}-uid" placeholder="{{terminal.uid}}">工号</li>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary">提交更改</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="info_update('{{terminal.uid}}')">提交更改</button>
                             </div>
                         </div>
                     </div>
