@@ -30,6 +30,9 @@ def str2HexList(strObj):
     print(ret)
     return ret
 
+def hex2Str(hexObj):
+    ret = ""
+
 
 def indexTest(request):
     return render(request, 'index.html')
@@ -306,7 +309,13 @@ class MySerial(serial.Serial):
             result = Result(True, str(buff[4:6]), buff[1], 'none')
         elif buff[0] == 0x02 and buff[1] == 0x08:
             '''定位信息上传'''
-            result = Result(True, str(buff[4:6]), buff[1], str(buff[6:10]))
+            strObj = '%02x%02x' % (buff[4],buff[5])
+            try:
+                terminal = PosData.objects.get(tid=strObj)
+            except:
+                return Result(False)
+            pos = {'x':buff[6]*16+buff[7],'y':buff[8]*16+buff[9]}
+            result = Result(True, terminal.uid, 0x08, pos)
         elif buff[0] == 0x02 and buff[1] == 0x00:
             '''网关上线'''
             result = Result(False, str(buff[1]), 0x00)

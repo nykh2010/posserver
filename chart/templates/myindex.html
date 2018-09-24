@@ -33,7 +33,18 @@
                         break;
                     case 0x08:
                     // 坐标位置上报
-                        console.log()
+                        var oldopt = chart.getOption();      // 获取当前设置项
+                        for (i=0;i<oldopt.series.length;i++) {
+                            if (String(oldopt.series[i].name) == pos_data.id) {
+                                console.log("%o", oldopt.series[i].name);
+                                oldopt.series[i].data[0][0] = pos_data.message.x;
+                                oldopt.series[i].data[0][1] = pos_data.message.y;
+                                chart.setOption(oldopt);
+                                break;
+                            }
+                        }
+                        // console.log("%o", oldopt);
+                        break;
                 }
                 var oldopt = chart.getOption();      // 获取当前设置项
                 // console.log("%o", oldopt);
@@ -155,7 +166,7 @@
         <nav class="navbar navbar-default" role="navigation">
             <div class="container">
                 <div>
-                    <form enctype="multipart/form-data" action="http://127.0.0.1:8080/" method="POST" target="localpage" class="navbar-form navbar-left" role="form">
+                    <form enctype="multipart/form-data" action="http://127.0.0.1:8080/" method="POST" class="navbar-form navbar-left" role="form">
                         <div class="form-group">
                             <input type="file" accept="*.csv" name="csvfile">
                         </div>
