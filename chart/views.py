@@ -150,7 +150,7 @@ def WebProtocol(buff):
         l = str2HexList(s)
         result.extend(l)            # 追加至返回列表中
         result.insert(6, 0x04)
-        r = '{:0>14}'.format(terminal.uid)
+        r = '{0}'.format(terminal.uid)
         rb = bytes(r, encoding='utf-8')
         length = len(rb)
         rl = list(rb)
@@ -191,12 +191,12 @@ def WebProtocol(buff):
             l = str2HexList(s)
             result.extend(l)            # 追加至返回列表中
             result.insert(6, 0x04)
-            r = '{:0>14}'.format(terminal.uid)
+            r = '{0}'.format(terminal.uid)
             rb = bytes(r, encoding='utf-8')
             length = len(rb)
             rl = list(rb)
             result.extend(rl)
-            result.insert(3, length+2)
+            result.insert(3, length+3)
             res.append(result)
     elif jsonDict['type'] == 0x06:
         # 消息推送
@@ -247,7 +247,9 @@ def websockTest(request):
                 ms.sendQueue.put_nowait(msgdata)
                 # 等待应答
             websock.send(message)
-        return
+    terminals = PosData.objects.all()
+    colors = colorList[:len(terminals)]
+    return render(request, 'myindex.html', locals())
 
 class Result:
     def __init__(self, needToWeb, id=None, msgType=None, msg=None):
@@ -255,9 +257,9 @@ class Result:
         self.message = {'id':id, 'type':msgType, 'message':msg}
 
 class MySerial(serial.Serial):
-    def __init__(self, port='COM1'):
+    def __init__(self, port='COM11'):
         print('myserial init')
-        super().__init__(port=port, timeout=1)
+        super().__init__(port=port, baudrate=115200, timeout=1)
         self.sendQueue = queue.Queue(maxsize=50)
         self.recvQueue = queue.Queue(maxsize=50)
         t = threading.Thread(target=self.loop, name='serail_loop')
@@ -265,7 +267,16 @@ class MySerial(serial.Serial):
     
     def checkAck(self, result):
         '''检查应答'''
-        return True
+        for i in range(5):
+            buff = self.read(2048)
+            if not buff:
+                continue
+            if buff[0] == 0x02 and buff[1] == result[1]:
+                print("recv ack")
+                return True
+            else:
+                continue
+        return False
 
     def loop(self):
         while True:
@@ -290,12 +301,14 @@ class MySerial(serial.Serial):
                 print(message)
                 for websock in websocks:
                     websock.send(message.encode('utf-8'))
-                resp = [0x03, buff[1], buff[2], 0x00]
-                check = 0       # 校验位
-                for x in resp:
-                    check = check ^ x
-                resp.append(check)
-                self.write(resp)
+            if result.message['id'] == None:
+                continue
+            resp = [0x03, buff[1], buff[2], 0x00]
+            check = 0       # 校验位
+            for x in resp:
+                check = check ^ x
+            resp.append(check)
+            self.write(resp)
 
     def txProtocol(self, msg):
         '''发送协议处理'''
@@ -315,6 +328,9 @@ class MySerial(serial.Serial):
             except:
                 return Result(False)
             pos = {'x':buff[6]*16+buff[7],'y':buff[8]*16+buff[9]}
+            terminal.x = pos['x']   # 更新坐标值
+            terminal.y = pos['y']
+            terminal.save()         
             result = Result(True, terminal.uid, 0x08, pos)
         elif buff[0] == 0x02 and buff[1] == 0x00:
             '''网关上线'''
