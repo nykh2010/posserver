@@ -38,7 +38,7 @@
                 switch(pos_data.type) {
                     case 0x07:
                     // 报警信息上传
-                        console.log("alarm");
+                        alert(pos_data.id + "alarm");
                         break;
                     case 0x08:
                     // 坐标位置上报
@@ -77,10 +77,10 @@
                         max: 100
                     },
                     color: [
-                        {% for color in colors %}
-                            '{{color}}',
-                        {% endfor %}
-                        '#000000'
+                        // {% for color in colors %}
+                        //     '{{color}}',
+                        // {% endfor %}
+                        'gray'
                     ],
                     series: [
                         {% for terminal in terminals %}
@@ -111,10 +111,10 @@
                 };
                 chart.setOption(option);
                 opt = chart.getOption();
-                {% for terminal in terminals %}
-                    // document.getElementById("{{terminal.uid}}-btn").setAttribute('style', "background-color:"+ opt.color[{{forloop.counter}}-1]); 
-                    document.getElementById("{{terminal.uid}}-btn").style.backgroundColor = opt.color[{{forloop.counter}}-1];
-                {% endfor %}
+                // {% for terminal in terminals %}
+                //     // document.getElementById("{{terminal.uid}}-btn").setAttribute('style', "background-color:"+ opt.color[{{forloop.counter}}-1]); 
+                //     document.getElementById("{{terminal.uid}}-btn").style.backgroundColor = opt.color[{{forloop.counter}}-1];
+                // {% endfor %}
             }
             $(document).ready(append_data);
         </script>
@@ -277,7 +277,7 @@
         <div id="online_list" class="col-md-4 column">
             {% for terminal in terminals %}
             <ul class="list-group" style="margin-bottom:1px; margin-right:0px">
-                <button id="{{terminal.uid}}-btn" class="btn btn-group" style="color:white;" data-toggle="modal" data-target="#{{terminal.uid}}"
+                <button id="{{terminal.uid}}-btn" class="btn btn-default" data-toggle="modal" data-target="#{{terminal.uid}}"
                     onmouseover="highlight_chart('{{terminal.uid}}')" onmouseout="downplay_chart('{{terminal.uid}}')">
                     {{terminal.uid}}
                 </button>

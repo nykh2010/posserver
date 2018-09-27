@@ -149,7 +149,6 @@ def WebProtocol(buff):
         s = '{:0>4}'.format(terminal.tid)   # 字符串转换
         l = str2HexList(s)
         result.extend(l)            # 追加至返回列表中
-        result.insert(6, 0x04)
         r = '{0}'.format(terminal.uid)
         rb = bytes(r, encoding='utf-8')
         length = len(rb)
@@ -190,7 +189,6 @@ def WebProtocol(buff):
             s = '{:0>4}'.format(terminal.tid)   # 字符串转换
             l = str2HexList(s)
             result.extend(l)            # 追加至返回列表中
-            result.insert(6, 0x04)
             r = '{0}'.format(terminal.uid)
             rb = bytes(r, encoding='utf-8')
             length = len(rb)
@@ -285,6 +283,7 @@ class MySerial(serial.Serial):
                 '''发送队列非空'''
                 print('serial loop')
                 msg = self.sendQueue.get_nowait()   # 从队列中取出一个消息
+                print(msg)
                 for i in range(3):
                     self.write(msg)
                     if self.checkAck(msg):          # 收到应答，跳出
@@ -319,7 +318,12 @@ class MySerial(serial.Serial):
         
         if buff[0] == 0x02 and buff[1] == 0x07:
             '''报警信息上报'''
-            result = Result(True, str(buff[4:6]), buff[1], 'none')
+            strObj = '%02x%02x' % (buff[4],buff[5])
+            try:
+                terminal = PosData.objects.get(tid=strObj)
+            except:
+                return Result(False)
+            result = Result(True, terminal.uid, 0x07, 'none')
         elif buff[0] == 0x02 and buff[1] == 0x08:
             '''定位信息上传'''
             strObj = '%02x%02x' % (buff[4],buff[5])
@@ -334,7 +338,10 @@ class MySerial(serial.Serial):
             result = Result(True, terminal.uid, 0x08, pos)
         elif buff[0] == 0x02 and buff[1] == 0x00:
             '''网关上线'''
-            result = Result(False, str(buff[1]), 0x00)
+            result = Result(False, str(buff[2]), 0x00)
+        elif buff[0] == 0x02 and buff[1] == 0x09:
+            '''消息已读上报'''
+            result = Result(False, str(buff[2]), 0x00)
         else:
             '''网关应答'''
             result = Result(False)
